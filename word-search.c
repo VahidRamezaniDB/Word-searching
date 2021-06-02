@@ -119,10 +119,11 @@ void *routine1(void *args){
 	int line = arguments.line;
 	int counter;
 	clock_t t;
+	t = clock();
 	while(counter != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
 		memset((void *)word, 0, MAX_WORD_SIZE); 
-		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0'){
+		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0' && text[counter]!=',' && text[counter]!='?' && text[counter]!='.' && text[counter]!='!' && text[counter]!=';' && text[counter]!=':' && text[counter]!=')'){
 			strncat(word, &text[counter], 1);
 		}
 		t = clock();
@@ -149,13 +150,13 @@ void *routine2(void *args){
 	int line = arguments.line;
 	int counter;
 	clock_t t;
+	t = clock();
 	while(counter != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
 		memset((void *)word, 0, MAX_WORD_SIZE); 
-		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0'){
+		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0' && text[counter]!=',' && text[counter]!='?' && text[counter]!='.' && text[counter]!='!' && text[counter]!=';' && text[counter]!=':' && text[counter]!=')'){
 			strncat(word, &text[counter], 1);
 		}
-		t = clock();
 		if(search(root, word)){
 			t = clock() - t;
 			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
@@ -177,6 +178,7 @@ void word_search(struct TrieNode *root, char *text, FILE *outFile){
 	int counter=0;
 	int line = 1;
 	clock_t t;
+	t = clock();
 	while(text[counter] != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
 		memset((void *)word, 0, MAX_WORD_SIZE); 
@@ -185,7 +187,6 @@ void word_search(struct TrieNode *root, char *text, FILE *outFile){
 			counter++;
 		}
 		strcat(word,"\0");
-		t = clock();
 		if(search(root, word)){
 			t = clock() - t;
 			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
