@@ -197,12 +197,6 @@ void word_search(struct TrieNode *root, char *text, FILE *outFile){
 	}
 }
 
-
-
-
-
-
-
 int main(int argc, char* argv[])
 {
 	FILE* inFile;
@@ -220,7 +214,7 @@ int main(int argc, char* argv[])
     }
     inFile=fopen(argv[1],"rt");
     if(!inFile){
-        fputs("Unable to open file.",stderr);
+        fputs("Unable to open file.\n",stderr);
         exit(EXIT_FAILURE);
     }
 	if(root==NULL){
@@ -255,26 +249,25 @@ int main(int argc, char* argv[])
 	}
 	for (int i=0;i<list_size;i++){
 		printf("Enter a word:\n");
-		char* temp=malloc(sizeof(char)*MAX_WORD_SIZE);
-		if(temp==NULL){
+		list[i]=malloc(sizeof(char)*MAX_WORD_SIZE);
+		if(list[i]==NULL){
 			fputs("memmory allocation failed. (temp)\n",stderr);
 			exit(EXIT_FAILURE);
 		}
-		scanf("%s",temp);
-		list[i]=temp;
+		scanf("%s",list[i]);
 	}
+	printf("OK.\n");
+	
 	create_trie_tree(root,list,list_size);
+	usleep(500000);
+	printf("tree created.\n");
 
 	outFile=fopen("out.txt","wt");
 	if(!outFile){
         fputs("Unable to open file.\n",stderr);
         exit(EXIT_FAILURE);
     }
-	char* temp="select one of the options bellow:\n";
-	strcat(temp," 1. Run without multi threading.\n");
-	strcat(temp," 2. Multi threading using mutex lock.\n");
-	strcat(temp," 3. Multi threading using semaphore.\n");
-	fputs(temp,stdout);
+	printf("select one of the options bellow:\n 1. Run without multi threading.\n 2. Multi threading using mutex lock.\n 3. Multi threading using semaphore.\n");
 	scanf("%d",&choice);
 	switch(choice){
 		case 1 :
