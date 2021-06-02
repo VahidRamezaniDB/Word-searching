@@ -3,6 +3,9 @@
 #include <string.h>
 #include <stdbool.h>
 
+//maximum word size
+#define MAX_WORD_SIZE 16
+
 #define ARRAY_SIZE(a) sizeof(a)/sizeof(a[0])
 
 // Alphabet size (# of symbols)
@@ -84,6 +87,23 @@ bool search(struct TrieNode *root, const char *key)
 	}
 
 	return (pCrawl != NULL && pCrawl->isEndOfWord);
+}
+
+void word_search(struct TrieNode *root, char *text, FILE *outFile){
+	int counter;
+	while(counter != '\0'){
+		char *word = malloc(MAX_WORD_SIZE);
+		memset((void *)word, 0, MAX_WORD_SIZE); 
+		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0'){
+			strncat(word, &text[counter], 1);
+		}
+		if(search(root, word)){
+			
+		}
+		if(text[counter]!='\0'){
+			counter++;
+		}
+	}
 }
 
 
