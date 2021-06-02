@@ -119,6 +119,16 @@ struct TrieNode create_trie_tree(struct TrieNode *root, char* list[],int size){
 sem_t mutex;
 bool available = true;
 
+//acquire and release for mutex locks
+void acquire(){
+	while(!available);
+	available = false;
+}
+
+void release(){
+	available = true;
+}
+
 void *routine1(void *args){
 	struct thread_args arguments = *((struct thread_args *)args);
 	char *text = arguments.text;
@@ -213,16 +223,26 @@ void word_search(struct TrieNode *root, char *text, FILE *outFile){
 	}
 }
 
-void thread_driver(int choice,char* text){
+void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root){
 	char* part[MAX_THREAD_NUM];
+	int lines[MAX_THREAD_NUM];
 	int char_num=sizeof(text)/sizeof(char);
-	int char_counter=0;
 	int part_counter=0;
+	int line=1;
 
 	for(int i=0;i<MAX_THREAD_NUM;i++){
-		int n=i*(sizeof(text)/MAX_THREAD_NUM);
-		int m=(i+1)*(sizeof(text)/MAX_THREAD_NUM);
+		int n=i*(char_num/MAX_THREAD_NUM);
+		int m=(i+1)*(char_num/MAX_THREAD_NUM);
+		if(i==MAX_THREAD_NUM-1){
+			n=0;
+			m=char_num;
+		}
 		part[i]=malloc(sizeof(char)*(m-n));
+		if(part[i]==NULL){
+			printf("memmory allocation failed. (part)\n");
+			exit(EXIT_FAILURE);
+		}
+		lines[i]=1;
 	}
 
 	for(int i=0;text[i];i++){
@@ -233,37 +253,54 @@ void thread_driver(int choice,char* text){
 		}
 		memset(word,0,sizeof(word));
 		while(text[i]!=' ' && text[i]!='\n' && text[i]!='\0'){
-			strncat(word,text[i],1);
+			strncat(word,&text[i],1);
 			i++;
-			char_counter++;
 		}
-		strncat(word,text[i],1);
+		if(text[i]=='\n'){
+			line++;
+		}
+		strncat(word,&text[i],1);
 		i++;
-		char_counter++;
 
-		if(char_counter>(part_counter+1)*(sizeof(text)/MAX_THREAD_NUM)){
+		if(i>(part_counter+1)*(sizeof(text)/MAX_THREAD_NUM)){
 			part_counter++;
+			lines[part_counter]=line;
 		}
 		strcat(part[part_counter],word);
 	}
+
 	if (choice==2){
+		pthread_t tid[MAX_THREAD_NUM];
+    	for(int i=0;i<MAX_THREAD_NUM;i++){
+			struct thread_args *args;
+			args->text=part[i];
+			args->root=root;
+			args->outFile=outFile;
+			args->line=lines[i];
+        	pthread_create(&tid[i],NULL,(void *)routine2,(void *)args);
+    	}
+    	for(int i=0;i<MAX_THREAD_NUM;i++){
+        	pthread_join(tid[i],NULL);
+    	}
 
 	}else if(choice==3){
-
+		pthread_t tid[MAX_THREAD_NUM];
+    	for(int i=0;i<MAX_THREAD_NUM;i++){
+			struct thread_args *args;
+			args->text=part[i];
+			args->root=root;
+			args->outFile=outFile;
+			args->line=lines[i];
+        	pthread_create(&tid[i],NULL,(void *)routine1,(void *)args);
+		
+    	}
+    	for(int i=0;i<MAX_THREAD_NUM;i++){
+        	pthread_join(tid[i],NULL);
+    	}
 	}else{
 		printf("Invalid input.\n");
 		exit(EXIT_FAILURE);
 	}
-}
-
-//acquire and release for mutex locks
-void acquire(){
-	while(!available);
-	available = false;
-}
-
-void release(){
-	available = true;
 }
 
 int main(int argc, char* argv[])
@@ -352,10 +389,10 @@ int main(int argc, char* argv[])
 			break;
 		case 2 :
 		case 3 :
-			thread_driver(choice,text);
+			thread_driver(choice,text,outFile,root);
 			break;
 		default:
-			thread_driver(choice,text);
+			thread_driver(choice,text,outFile,root);
 			break;
 	}
 }
