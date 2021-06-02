@@ -201,6 +201,17 @@ void word_search(struct TrieNode *root, char *text, FILE *outFile){
 	}
 }
 
+void thread_driver(int choice){
+	if (choice==2){
+
+	}else if(choice==3){
+
+	}else{
+		printf("Invalid input.\n");
+		exit(EXIT_FAILURE);
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	FILE* inFile;
@@ -286,15 +297,11 @@ int main(int argc, char* argv[])
 			printf("Search completed.\n");
 			break;
 		case 2 :
-			break;
 		case 3 :
+			thread_driver(choice);
 			break;
 		default:
-			fputs("Invalid input. default value replaced.\n",stdout);
-			printf("Searching...\n");
-			usleep(1000000);
-			word_search(root,text,outFile);
-			fclose(outFile);
-			printf("Search completed.\n");
+			thread_driver(choice);
+			break;
 	}
 }
