@@ -38,6 +38,7 @@ struct thread_args{
 	struct TrieNode *root;
 	char *text;
 	FILE *outFile;
+	int line;
 };
 
 // Returns new trie node (initialized to NULLs)
@@ -115,8 +116,8 @@ void *routine1(void *args){
 	char *text = arguments.text;
 	FILE *outFile = arguments.outFile;
 	struct TrieNode *root = arguments.root;
+	int line = arguments.line;
 	int counter;
-	int line = 1;
 	clock_t t;
 	while(counter != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
@@ -145,8 +146,8 @@ void *routine2(void *args){
 	char *text = arguments.text;
 	FILE *outFile = arguments.outFile;
 	struct TrieNode *root = arguments.root;
+	int line = arguments.line;
 	int counter;
-	int line = 1;
 	clock_t t;
 	while(counter != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
