@@ -177,11 +177,12 @@ void word_search(struct TrieNode *root, char *text, FILE *outFile){
 	int counter;
 	int line = 1;
 	clock_t t;
-	while(counter != '\0'){
+	while(text[counter] != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
 		memset((void *)word, 0, MAX_WORD_SIZE); 
-		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0'){
+		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0' && text[counter]!=',' && text[counter]!='?' && text[counter]!='.' && text[counter]!='!' && text[counter]!=';' && text[counter]!=':'){
 			strncat(word, &text[counter], 1);
+			counter++;
 		}
 		t = clock();
 		if(search(root, word)){
