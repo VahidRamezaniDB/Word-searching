@@ -10,10 +10,13 @@
 #include <ctype.h>
 
 //maximum word size
-#define MAX_WORD_SIZE 16
+#define MAX_WORD_SIZE 46
 
 //maximum number of words to search
 #define MAX_WORD_NUM 20
+
+//maximum number of threads
+#define MAX_THREAD_NUM 4
 
 #define ARRAY_SIZE(a) sizeof(a)/sizeof(a[0])
 
@@ -127,7 +130,6 @@ void *routine1(void *args){
 		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0' && text[counter]!=',' && text[counter]!='?' && text[counter]!='.' && text[counter]!='!' && text[counter]!=';' && text[counter]!=':' && text[counter]!=')'){
 			strncat(word, &text[counter], 1);
 		}
-		t = clock();
 		if(search(root, word)){
 			t = clock() - t;
 			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
@@ -202,7 +204,39 @@ void word_search(struct TrieNode *root, char *text, FILE *outFile){
 	}
 }
 
-void thread_driver(int choice){
+void thread_driver(int choice,char* text){
+	char* part[MAX_THREAD_NUM];
+	int char_num=sizeof(text)/sizeof(char);
+	int char_counter=0;
+	int part_counter=0;
+
+	for(int i=0;i<MAX_THREAD_NUM;i++){
+		int n=i*(sizeof(text)/MAX_THREAD_NUM);
+		int m=(i+1)*(sizeof(text)/MAX_THREAD_NUM);
+		part[i]=malloc(sizeof(char)*(m-n));
+	}
+
+	for(int i=0;text[i];i++){
+		char* word=malloc(sizeof(char)*MAX_WORD_SIZE);
+		if(word==NULL){
+			printf("memmory allocation failed. (word/thread driver)\n");
+			exit(EXIT_FAILURE);
+		}
+		memset(word,0,sizeof(word));
+		while(text[i]!=' ' && text[i]!='\n' && text[i]!='\0'){
+			strncat(word,text[i],1);
+			i++;
+			char_counter++;
+		}
+		strncat(word,text[i],1);
+		i++;
+		char_counter++;
+
+		if(char_counter>(part_counter+1)*(sizeof(text)/MAX_THREAD_NUM)){
+			part_counter++;
+		}
+		strcat(part[part_counter],word);
+	}
 	if (choice==2){
 
 	}else if(choice==3){
@@ -299,10 +333,10 @@ int main(int argc, char* argv[])
 			break;
 		case 2 :
 		case 3 :
-			thread_driver(choice);
+			thread_driver(choice,text);
 			break;
 		default:
-			thread_driver(choice);
+			thread_driver(choice,text);
 			break;
 	}
 }
