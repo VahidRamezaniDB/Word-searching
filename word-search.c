@@ -90,6 +90,7 @@ bool search(struct TrieNode *root, const char *key)
 int main(int argc, char* argv[])
 {
 	FILE* inFile;
+	FILE* outFile;
     char* text;
     
     if (argc<2){
@@ -101,6 +102,11 @@ int main(int argc, char* argv[])
         fputs("Unable to open file.",stderr);
         exit(EXIT_FAILURE);
     }
+
+	fseek(inFile, 0L, SEEK_END);
+	long int size = ftell(inFile);
+
+	text = malloc(sizeof(char)*size);
 
 
 }
