@@ -3,6 +3,10 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
+#include <pthread.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/syscall.h>
 
 //maximum word size
 #define MAX_WORD_SIZE 16
@@ -114,7 +118,8 @@ void *routine1(void *args){
 		if(search(root, word)){
 			t = clock() - t;
 			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
-			fprintf(outFile, "Word: %s. Found in Line: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, time_elapsed, time_elapsed);
+			int tid = (int)syscall(SYS_gettid);
+			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, tid, time_elapsed, time_elapsed);
 		}
 		if(text[counter]=='\n'){
 			line++;
@@ -143,7 +148,8 @@ void *routine2(void *args){
 		if(search(root, word)){
 			t = clock() - t;
 			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
-			fprintf(outFile, "Word: %s. Found in Line: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, time_elapsed, time_elapsed);
+			int tid = (int)syscall(SYS_gettid);
+			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, tid, time_elapsed, time_elapsed);
 		}
 		if(text[counter]=='\n'){
 			line++;
