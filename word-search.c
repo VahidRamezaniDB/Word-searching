@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <ctype.h>
 
 //maximum word size
 #define MAX_WORD_SIZE 16
@@ -248,6 +249,10 @@ int main(int argc, char* argv[])
 	}
 	fclose(inFile);
 	fputs("Succesfully opened and extracted text from the file.\n",stdout);
+
+	for (int i=0;text[i];i++){
+		text[i]=tolower(text[i]);
+	}
 	
 	printf("Enter the number of words you wish to search in the file. (max=%d)\n",MAX_WORD_NUM);
 	scanf("%d",&list_size);
