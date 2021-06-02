@@ -92,21 +92,30 @@ int main(int argc, char* argv[])
 	FILE* inFile;
 	FILE* outFile;
     char* text;
-    
+    long int size;
+
     if (argc<2){
-        fputs("Not enough arguments.",stderr);
+        fputs("Not enough arguments.\n",stderr);
         exit(EXIT_FAILURE);
     }
     inFile=fopen(argv[1],"rt");
     if(!inFile){
-        fputs("Unable to open file.",stderr);
+        fputs("Unable to open file.\n",stderr);
         exit(EXIT_FAILURE);
     }
 
 	fseek(inFile, 0L, SEEK_END);
-	long int size = ftell(inFile);
+	size = ftell(inFile);
+	fseek(inFile,0L,SEEK_SET);
+	text = malloc(size);
 
-	text = malloc(sizeof(char)*size);
-
-
+	while(true){
+		char temp=(char)fgetc(inFile);
+		if(temp==EOF){
+			break;
+		}
+		strncat(text,&temp,1);
+	}
+	fclose(inFile);
+	outFile=fopen("out.txt","wt");
 }
