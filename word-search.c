@@ -114,7 +114,7 @@ struct TrieNode create_trie_tree(struct TrieNode *root, char* list[],int size){
 }
 
 sem_t mutex;
-bool available;
+bool available = true;
 
 void *routine1(void *args){
 	struct thread_args arguments = *((struct thread_args *)args);
@@ -168,7 +168,9 @@ void *routine2(void *args){
 			t = clock() - t;
 			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
 			int tid = (int)syscall(SYS_gettid);
+			acquire();
 			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, tid, time_elapsed, time_elapsed);
+			release();
 		}
 		if(text[counter]=='\n'){
 			line++;
