@@ -87,7 +87,20 @@ bool search(struct TrieNode *root, const char *key)
 }
 
 
-int main()
+int main(int argc, char* argv[])
 {
-	
+	FILE* inFile;
+    char* text;
+    
+    if (argc<2){
+        fputs("Not enough arguments.",stderr);
+        exit(EXIT_FAILURE);
+    }
+    inFile=fopen(argv[1],"rt");
+    if(!inFile){
+        fputs("Unable to open file.",stderr);
+        exit(EXIT_FAILURE);
+    }
+
+
 }
