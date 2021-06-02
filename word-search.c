@@ -179,13 +179,9 @@ void word_search(struct TrieNode *root, char *text, FILE *outFile){
 	int line = 1;
 	clock_t t;
 	while(text[counter] != '\0'){
-		char *word = malloc(sizeof(char)*MAX_WORD_SIZE);
-		if(word==NULL){
-			fputs("memmory allocation failed. (word/word_search)\n",stderr);
-			exit(EXIT_FAILURE);
-		}
-		memset(word, 0, MAX_WORD_SIZE); 
-		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0'){
+		char *word = malloc(MAX_WORD_SIZE);
+		memset((void *)word, 0, MAX_WORD_SIZE); 
+		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0' && text[counter]!=',' && text[counter]!='?' && text[counter]!='.' && text[counter]!='!' && text[counter]!=';' && text[counter]!=':' && text[counter]!=')'){
 			strncat(word, &text[counter], 1);
 			counter++;
 		}
