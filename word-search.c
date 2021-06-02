@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <ctype.h>
+#include <semaphore.h>
 
 //maximum word size
 #define MAX_WORD_SIZE 16
@@ -112,6 +113,9 @@ struct TrieNode create_trie_tree(struct TrieNode *root, char* list[],int size){
 	}
 }
 
+sem_t mutex;
+bool available;
+
 void *routine1(void *args){
 	struct thread_args arguments = *((struct thread_args *)args);
 	char *text = arguments.text;
@@ -119,7 +123,7 @@ void *routine1(void *args){
 	struct TrieNode *root = arguments.root;
 	int line = arguments.line;
 	int counter;
-	clock_t t;
+	clock_t t, tf, to;
 	t = clock();
 	while(counter != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
@@ -127,12 +131,14 @@ void *routine1(void *args){
 		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0' && text[counter]!=',' && text[counter]!='?' && text[counter]!='.' && text[counter]!='!' && text[counter]!=';' && text[counter]!=':' && text[counter]!=')'){
 			strncat(word, &text[counter], 1);
 		}
-		t = clock();
 		if(search(root, word)){
-			t = clock() - t;
+			tf = clock() - t;
 			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
 			int tid = (int)syscall(SYS_gettid);
+			sem_wait(&mutex);
+			to = clock() - t;
 			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, tid, time_elapsed, time_elapsed);
+			sem_post(&mutex);
 		}
 		if(text[counter]=='\n'){
 			line++;
@@ -211,6 +217,16 @@ void thread_driver(int choice){
 		printf("Invalid input.\n");
 		exit(EXIT_FAILURE);
 	}
+}
+
+//acquire and release for mutex locks
+void acquire(){
+	while(!available);
+	available = false;
+}
+
+void release(){
+	available = true;
 }
 
 int main(int argc, char* argv[])
