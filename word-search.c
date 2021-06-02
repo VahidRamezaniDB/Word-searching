@@ -174,15 +174,21 @@ void *routine2(void *args){
 
 
 void word_search(struct TrieNode *root, char *text, FILE *outFile){
-	int counter;
+	int counter=0;
 	int line = 1;
 	clock_t t;
-	while(counter != '\0'){
-		char *word = malloc(MAX_WORD_SIZE);
-		memset((void *)word, 0, MAX_WORD_SIZE); 
+	while(text[counter] != '\0'){
+		char *word = malloc(sizeof(char)*MAX_WORD_SIZE);
+		if(word==NULL){
+			fputs("memmory allocation failed. (word/word_search)\n",stderr);
+			exit(EXIT_FAILURE);
+		}
+		memset(word, 0, MAX_WORD_SIZE); 
 		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0'){
 			strncat(word, &text[counter], 1);
+			counter++;
 		}
+		strcat(word,"\0");
 		t = clock();
 		if(search(root, word)){
 			t = clock() - t;
@@ -269,11 +275,14 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 	printf("select one of the options bellow:\n 1. Run without multi threading.\n 2. Multi threading using mutex lock.\n 3. Multi threading using semaphore.\n");
-	scanf("%d",&choice);
+	
 	switch(choice){
 		case 1 :
+			printf("Searching...\n");
+			usleep(1000000);
 			word_search(root,text,outFile);
 			fclose(outFile);
+			printf("Search completed.\n");
 			break;
 		case 2 :
 			break;
@@ -281,7 +290,10 @@ int main(int argc, char* argv[])
 			break;
 		default:
 			fputs("Invalid input. default value replaced.\n",stdout);
+			printf("Searching...\n");
+			usleep(1000000);
 			word_search(root,text,outFile);
 			fclose(outFile);
+			printf("Search completed.\n");
 	}
 }
