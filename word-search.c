@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 
 //maximum word size
 #define MAX_WORD_SIZE 16
@@ -89,16 +90,90 @@ bool search(struct TrieNode *root, const char *key)
 	return (pCrawl != NULL && pCrawl->isEndOfWord);
 }
 
-void word_search(struct TrieNode *root, char *text, FILE *outFile){
+struct thread_args{
+	struct TrieNode *root;
+	char *text;
+	FILE *outFile;
+};
+
+void *routine1(void *args){
+	struct thread_args arguments = *((struct thread_args *)args);
+	char *text = arguments.text;
+	FILE *outFile = arguments.outFile;
+	struct TrieNode *root = arguments.root;
 	int counter;
+	int line = 1;
+	clock_t t;
 	while(counter != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
 		memset((void *)word, 0, MAX_WORD_SIZE); 
 		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0'){
 			strncat(word, &text[counter], 1);
 		}
+		t = clock();
 		if(search(root, word)){
-			
+			t = clock() - t;
+			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
+			fprintf(outFile, "Word: %s. Found in Line: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, time_elapsed, time_elapsed);
+		}
+		if(text[counter]=='\n'){
+			line++;
+		}
+		if(text[counter]!='\0'){
+			counter++;
+		}
+	}
+}
+
+void *routine2(void *args){
+	struct thread_args arguments = *((struct thread_args *)args);
+	char *text = arguments.text;
+	FILE *outFile = arguments.outFile;
+	struct TrieNode *root = arguments.root;
+	int counter;
+	int line = 1;
+	clock_t t;
+	while(counter != '\0'){
+		char *word = malloc(MAX_WORD_SIZE);
+		memset((void *)word, 0, MAX_WORD_SIZE); 
+		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0'){
+			strncat(word, &text[counter], 1);
+		}
+		t = clock();
+		if(search(root, word)){
+			t = clock() - t;
+			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
+			fprintf(outFile, "Word: %s. Found in Line: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, time_elapsed, time_elapsed);
+		}
+		if(text[counter]=='\n'){
+			line++;
+		}
+		if(text[counter]!='\0'){
+			counter++;
+		}
+	}
+
+}
+
+
+void word_search(struct TrieNode *root, char *text, FILE *outFile){
+	int counter;
+	int line = 1;
+	clock_t t;
+	while(counter != '\0'){
+		char *word = malloc(MAX_WORD_SIZE);
+		memset((void *)word, 0, MAX_WORD_SIZE); 
+		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0'){
+			strncat(word, &text[counter], 1);
+		}
+		t = clock();
+		if(search(root, word)){
+			t = clock() - t;
+			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
+			fprintf(outFile, "Word: %s. Found in Line: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, time_elapsed, time_elapsed);
+		}
+		if(text[counter]=='\n'){
+			line++;
 		}
 		if(text[counter]!='\0'){
 			counter++;
@@ -107,35 +182,30 @@ void word_search(struct TrieNode *root, char *text, FILE *outFile){
 }
 
 
+
+
+
+
+
 int main(int argc, char* argv[])
 {
 	FILE* inFile;
 	FILE* outFile;
     char* text;
-    long int size;
-
+    
     if (argc<2){
-        fputs("Not enough arguments.\n",stderr);
+        fputs("Not enough arguments.",stderr);
         exit(EXIT_FAILURE);
     }
     inFile=fopen(argv[1],"rt");
     if(!inFile){
-        fputs("Unable to open file.\n",stderr);
+        fputs("Unable to open file.",stderr);
         exit(EXIT_FAILURE);
     }
 
 	fseek(inFile, 0L, SEEK_END);
-	size = ftell(inFile);
-	fseek(inFile,0L,SEEK_SET);
-	text = malloc(size);
+	long int size = ftell(inFile);
+	
 
-	while(true){
-		char temp=(char)fgetc(inFile);
-		if(temp==EOF){
-			break;
-		}
-		strncat(text,&temp,1);
-	}
-	fclose(inFile);
-	outFile=fopen("out.txt","wt");
+	text = malloc(sizeof(char)*size);
 }
