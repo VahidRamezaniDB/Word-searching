@@ -2,9 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+
 
 //maximum word size
 #define MAX_WORD_SIZE 16
+
+//maximum number of words to search
+#define MAX_WORD_NUM 20
 
 #define ARRAY_SIZE(a) sizeof(a)/sizeof(a[0])
 
@@ -89,6 +96,12 @@ bool search(struct TrieNode *root, const char *key)
 	return (pCrawl != NULL && pCrawl->isEndOfWord);
 }
 
+struct TrieNode create_trie_tree(struct TrieNode *root, char* list[],int size){
+	for(int i=0;i<size;i++){
+		insert(root,list[i]);
+	}
+}
+
 void word_search(struct TrieNode *root, char *text, FILE *outFile){
 	int counter;
 	while(counter != '\0'){
@@ -111,8 +124,12 @@ int main(int argc, char* argv[])
 {
 	FILE* inFile;
 	FILE* outFile;
+	struct TrieNode *root=malloc(sizeof(struct TrieNode));
+	char* list[MAX_WORD_NUM];
+	int list_size;
     char* text;
     long int size;
+	int choice;
 
     if (argc<2){
         fputs("Not enough arguments.\n",stderr);
@@ -123,11 +140,20 @@ int main(int argc, char* argv[])
         fputs("Unable to open file.\n",stderr);
         exit(EXIT_FAILURE);
     }
+	if(root==NULL){
+		fputs("memmory allocation failed. (root)\n",stderr);
+		exit(EXIT_FAILURE);
+	}
 
 	fseek(inFile, 0L, SEEK_END);
 	size = ftell(inFile);
 	fseek(inFile,0L,SEEK_SET);
 	text = malloc(size);
+
+	if(text==NULL){
+		fputs("memmory allocation failed. (text)\n",stderr);
+		exit(EXIT_FAILURE);
+	}
 
 	while(true){
 		char temp=(char)fgetc(inFile);
@@ -137,5 +163,48 @@ int main(int argc, char* argv[])
 		strncat(text,&temp,1);
 	}
 	fclose(inFile);
+	fputs("Succesfully opened and extracted text from the file.\n",stdout);
+	
+	printf("Enter the number of words you wish to search in the file. (max=%d)\n",MAX_WORD_NUM);
+	scanf("%d",&list_size);
+	if(list_size>MAX_WORD_NUM){
+		list_size=MAX_WORD_NUM;
+	}
+	for (int i=0;i<list_size;i++){
+		printf("Enter a word:\n");
+		char* temp=malloc(sizeof(char)*MAX_WORD_SIZE);
+		if(temp==NULL){
+			fputs("memmory allocation failed. (temp)\n",stderr);
+			exit(EXIT_FAILURE);
+		}
+		scanf("%s",temp);
+		list[i]=temp;
+	}
+	create_trie_tree(root,list,list_size);
+
 	outFile=fopen("out.txt","wt");
+	if(!outFile){
+        fputs("Unable to open file.\n",stderr);
+        exit(EXIT_FAILURE);
+    }
+	char* temp="select one of the options bellow:\n";
+	strcat(temp," 1. Run without multi threading.\n");
+	strcat(temp," 2. Multi threading using mutex lock.\n");
+	strcat(temp," 3. Multi threading using semaphore.\n");
+	fputs(temp,stdout);
+	scanf("%d",&choice);
+	switch(choice){
+		case 1 :
+			word_search(root,text,outFile);
+			fclose(outFile);
+			break;
+		case 2 :
+			break;
+		case 3 :
+			break;
+		default:
+			fputs("Invalid input. default value replaced.\n",stdout);
+			word_search(root,text,outFile);
+			fclose(outFile);
+	}
 }
