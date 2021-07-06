@@ -141,19 +141,23 @@ void *routine1(void *args){
 	int counter;
 	clock_t t, tf, to;
 	t = clock();
-	while(counter != '\0'){
+	
+	int tid = (int)syscall(SYS_gettid);
+
+	printf("here\n");
+
+	while(text[counter] != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
 		memset((void *)word, 0, MAX_WORD_SIZE); 
 		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0' && text[counter]!=',' && text[counter]!='?' && text[counter]!='.' && text[counter]!='!' && text[counter]!=';' && text[counter]!=':' && text[counter]!=')'){
 			strncat(word, &text[counter], 1);
+			counter++;
 		}
 		if(search(root, word)){
 			tf = clock() - t;
-			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
-			int tid = (int)syscall(SYS_gettid);
 			sem_wait(&mutex);
 			to = clock() - t;
-			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, tid, time_elapsed, time_elapsed);
+			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %ld. Time elapsed to be written in the output file: %ld\n", word, line, tid, tf, to);
 			sem_post(&mutex);
 		}
 		if(text[counter]=='\n'){
@@ -172,7 +176,7 @@ void *routine2(void *args){
 	struct TrieNode *root = arguments.root;
 	int line = arguments.line;
 	int counter;
-	clock_t t;
+	clock_t t,tf,to;
 	t = clock();
 	while(text[counter] != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
@@ -182,11 +186,11 @@ void *routine2(void *args){
 			counter++;
 		}
 		if(search(root, word)){
-			t = clock() - t;
-			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
+			tf = clock() - t;
 			int tid = (int)syscall(SYS_gettid);
 			acquire();
-			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, tid, time_elapsed, time_elapsed);
+			to = clock() - t;
+			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %ld. Time elapsed to be written in the output file: %ld\n", word, line, tid, tf, to);
 			release();
 		}
 		if(text[counter]=='\n'){
@@ -291,6 +295,7 @@ void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root, lo
 			args->root=root;
 			args->outFile=outFile;
 			args->line=lines[i];
+			printf("going in routine1\n");
         	pthread_create(&tid[i],NULL,(void *)routine1,(void *)args);
 		
     	}
