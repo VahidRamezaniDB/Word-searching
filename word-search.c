@@ -174,11 +174,12 @@ void *routine2(void *args){
 	int counter;
 	clock_t t;
 	t = clock();
-	while(counter != '\0'){
+	while(text[counter] != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
 		memset((void *)word, 0, MAX_WORD_SIZE); 
 		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0' && text[counter]!=',' && text[counter]!='?' && text[counter]!='.' && text[counter]!='!' && text[counter]!=';' && text[counter]!=':' && text[counter]!=')'){
 			strncat(word, &text[counter], 1);
+			counter++;
 		}
 		if(search(root, word)){
 			t = clock() - t;
