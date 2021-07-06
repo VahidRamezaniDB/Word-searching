@@ -13,6 +13,9 @@
 //maximum word size
 #define MAX_WORD_SIZE 46
 
+//maximum line length
+#define MAX_LINE_SIZE 200
+
 //maximum number of words to search
 #define MAX_WORD_NUM 20
 
@@ -195,7 +198,6 @@ void *routine2(void *args){
 
 }
 
-
 void word_search(struct TrieNode *root, char *text, FILE *outFile){
 	int counter=0;
 	int line = 1;
@@ -226,49 +228,45 @@ void word_search(struct TrieNode *root, char *text, FILE *outFile){
 void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root){
 	char* part[MAX_THREAD_NUM];
 	int lines[MAX_THREAD_NUM];
-	int char_num=sizeof(text)/sizeof(char);
+	int counter=1;
 	int part_counter=0;
-	int line=1;
+	int line_counter=1;
+
+
+	for(int i=0;text[i];i++){
+		if(text[i]=='\n'){
+			line_counter++;
+		}
+	}
 
 	for(int i=0;i<MAX_THREAD_NUM;i++){
-		int n=i*(char_num/MAX_THREAD_NUM);
-		int m=(i+1)*(char_num/MAX_THREAD_NUM);
-		if(i==MAX_THREAD_NUM-1){
-			n=0;
-			m=char_num;
-		}
-		part[i]=malloc(sizeof(char)*(m-n));
+		lines[i]=i*(line_counter/MAX_THREAD_NUM)+1;
+
+		part[i]=malloc(sizeof(text));
 		if(part[i]==NULL){
-			printf("memmory allocation failed. (part)\n");
+			printf("memmory allocation failed. (line/thread driver)\n");
 			exit(EXIT_FAILURE);
 		}
-		lines[i]=1;
+		memset(part[i],0,sizeof(part[i]));
 	}
 
 	for(int i=0;text[i];i++){
-		char* word=malloc(sizeof(char)*MAX_WORD_SIZE);
-		if(word==NULL){
-			printf("memmory allocation failed. (word/thread driver)\n");
-			exit(EXIT_FAILURE);
-		}
-		memset(word,0,sizeof(word));
-		while(text[i]!=' ' && text[i]!='\n' && text[i]!='\0'){
-			strncat(word,&text[i],1);
-			i++;
-		}
-		if(text[i]=='\n'){
-			line++;
-		}
-		strncat(word,&text[i],1);
-		i++;
-
-		if(i>(part_counter+1)*(sizeof(text)/MAX_THREAD_NUM)){
+		if(part_counter!=MAX_THREAD_NUM-1 && counter>=lines[part_counter+1]){
+			printf("%d\n",i);
 			part_counter++;
-			lines[part_counter]=line;
 		}
-		strcat(part[part_counter],word);
-	}
 
+		strncat(part[part_counter],&text[i],1);				
+
+		if(text[i]=='\n'){
+			counter++;
+		}
+	}
+	exit(0);
+	for(int i=0;i<MAX_THREAD_NUM;i++){
+		printf("%d => %s\n",i,part[i]);
+	}
+	exit(0);
 	if (choice==2){
 		pthread_t tid[MAX_THREAD_NUM];
     	for(int i=0;i<MAX_THREAD_NUM;i++){
@@ -378,7 +376,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 	printf("select one of the options bellow:\n 1. Run without multi threading.\n 2. Multi threading using mutex lock.\n 3. Multi threading using semaphore.\n");
-	
+	scanf("%d",&choice);
 	switch(choice){
 		case 1 :
 			printf("Searching...\n");
