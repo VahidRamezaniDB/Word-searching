@@ -227,7 +227,7 @@ void word_search(struct TrieNode *root, char *text, FILE *outFile){
 	}
 }
 
-void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root){
+void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root, long int size){
 	char* part[MAX_THREAD_NUM];
 	int lines[MAX_THREAD_NUM];
 	int counter=1;
@@ -244,8 +244,7 @@ void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root){
 	for(int i=0;i<MAX_THREAD_NUM;i++){
 		lines[i]=i*(line_counter/MAX_THREAD_NUM)+1;
 
-		part[i]=malloc(sizeof(text));
-		printf("%ld\n", sizeof(*text));
+		part[i]=malloc(sizeof(char)*size);
 		if(part[i]==NULL){
 			printf("memmory allocation failed. (line/thread driver)\n");
 			exit(EXIT_FAILURE);
@@ -265,10 +264,6 @@ void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root){
 			counter++;
 		}
 	}
-	for(int i=0;i<MAX_THREAD_NUM;i++){
-		printf("%d => %s\n",i,part[i]);
-	}
-	exit(0);
 	if (choice==2){
 		pthread_t tid[MAX_THREAD_NUM];
     	for(int i=0;i<MAX_THREAD_NUM;i++){
@@ -345,6 +340,7 @@ int main(int argc, char* argv[])
 		}
 		strncat(text,&temp,1);
 	}
+
 	fclose(inFile);
 	fputs("Succesfully opened and extracted text from the file.\n",stdout);
 
@@ -389,10 +385,10 @@ int main(int argc, char* argv[])
 			break;
 		case 2 :
 		case 3 :
-			thread_driver(choice,text,outFile,root);
+			thread_driver(choice,text,outFile,root,size);
 			break;
 		default:
-			thread_driver(choice,text,outFile,root);
+			thread_driver(choice,text,outFile,root,size);
 			break;
 	}
 }
