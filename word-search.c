@@ -252,7 +252,7 @@ void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root, lo
 
 	for(int i=0;text[i];i++){
 		if(part_counter!=MAX_THREAD_NUM-1 && counter>=lines[part_counter+1]){
-			printf("%d\n",i);
+			strncat(part[part_counter],"\0",1);
 			part_counter++;
 		}
 
@@ -262,11 +262,14 @@ void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root, lo
 			counter++;
 		}
 	}
+	strncat(part[part_counter],"\0",1);
 
 	if (choice==2){
 		pthread_t tid[MAX_THREAD_NUM];
     	for(int i=0;i<MAX_THREAD_NUM;i++){
 			struct thread_args *args;
+			args = malloc(sizeof(struct thread_args));
+			memset(args,0,sizeof(args));
 			args->text=part[i];
 			args->root=root;
 			args->outFile=outFile;
@@ -281,6 +284,8 @@ void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root, lo
 		pthread_t tid[MAX_THREAD_NUM];
     	for(int i=0;i<MAX_THREAD_NUM;i++){
 			struct thread_args *args;
+			args = malloc(sizeof(struct thread_args));
+			memset(args,0,sizeof(args));
 			args->text=part[i];
 			args->root=root;
 			args->outFile=outFile;
