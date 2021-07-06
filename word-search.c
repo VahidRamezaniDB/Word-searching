@@ -295,7 +295,6 @@ void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root, lo
 			args->root=root;
 			args->outFile=outFile;
 			args->line=lines[i];
-			printf("going in routine1\n");
         	pthread_create(&tid[i],NULL,(void *)routine1,(void *)args);
 		
     	}
