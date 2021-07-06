@@ -133,6 +133,7 @@ void release(){
 }
 
 void *routine1(void *args){
+	printf("beginning of routine 1");
 	struct thread_args arguments = *((struct thread_args *)args);
 	char *text = arguments.text;
 	FILE *outFile = arguments.outFile;
@@ -166,6 +167,7 @@ void *routine1(void *args){
 }
 
 void *routine2(void *args){
+	printf("beginning of routine 2");
 	struct thread_args arguments = *((struct thread_args *)args);
 	char *text = arguments.text;
 	FILE *outFile = arguments.outFile;
@@ -243,6 +245,7 @@ void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root){
 		lines[i]=i*(line_counter/MAX_THREAD_NUM)+1;
 
 		part[i]=malloc(sizeof(text));
+		printf("%ld\n", sizeof(*text));
 		if(part[i]==NULL){
 			printf("memmory allocation failed. (line/thread driver)\n");
 			exit(EXIT_FAILURE);
@@ -252,17 +255,16 @@ void thread_driver(int choice,char* text,FILE* outFile,struct TrieNode *root){
 
 	for(int i=0;text[i];i++){
 		if(part_counter!=MAX_THREAD_NUM-1 && counter>=lines[part_counter+1]){
-			printf("%d\n",i);
+			//printf("%d\n",i);
 			part_counter++;
 		}
 
-		strncat(part[part_counter],&text[i],1);				
+		strncat(part[part_counter],&text[i],1);	
 
 		if(text[i]=='\n'){
 			counter++;
 		}
 	}
-	exit(0);
 	for(int i=0;i<MAX_THREAD_NUM;i++){
 		printf("%d => %s\n",i,part[i]);
 	}
