@@ -147,14 +147,16 @@ void *routine1(void *args){
 		memset((void *)word, 0, MAX_WORD_SIZE); 
 		while(text[counter]!=' ' && text[counter]!='\n' && text[counter]!='\0' && text[counter]!=',' && text[counter]!='?' && text[counter]!='.' && text[counter]!='!' && text[counter]!=';' && text[counter]!=':' && text[counter]!=')'){
 			strncat(word, &text[counter], 1);
+			counter++;
 		}
 		if(search(root, word)){
 			tf = clock() - t;
-			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
+			double time_elapsedf = ((double)tf)/CLOCKS_PER_SEC;
 			int tid = (int)syscall(SYS_gettid);
 			sem_wait(&mutex);
 			to = clock() - t;
-			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, tid, time_elapsed, time_elapsed);
+			double time_elapsedo = ((double)to)/CLOCKS_PER_SEC;
+			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %ld. Time elapsed to be written in the output file: %ld\n", word, line, tid, time_elapsedf, time_elapsedo);
 			sem_post(&mutex);
 		}
 		if(text[counter]=='\n'){
@@ -184,11 +186,13 @@ void *routine2(void *args){
 			counter++;
 		}
 		if(search(root, word)){
-			t = clock() - t;
-			double time_elapsed = ((double)t)/CLOCKS_PER_SEC;
+			tf = clock() - t;
+			double time_elapsedf = ((double)tf)/CLOCKS_PER_SEC;
 			int tid = (int)syscall(SYS_gettid);
 			acquire();
-			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %f. Time elapsed to be written in the output file: %f\n", word, line, tid, time_elapsed, time_elapsed);
+			to = clock() - t;
+			double time_elapsedo = ((double)to)/CLOCKS_PER_SEC;
+			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %ld. Time elapsed to be written in the output file: %ld\n", word, line, tid, time_elapsedf, time_elapsedo);
 			release();
 		}
 		if(text[counter]=='\n'){
