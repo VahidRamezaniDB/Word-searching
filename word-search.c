@@ -144,7 +144,6 @@ void *routine1(void *args){
 	
 	int tid = (int)syscall(SYS_gettid);
 
-	printf("here\n");
 
 	while(text[counter] != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
@@ -153,7 +152,8 @@ void *routine1(void *args){
 			strncat(word, &text[counter], 1);
 			counter++;
 		}
-		if(search(root, word)){
+		bool rv=false;
+		if(rv=search(root, word)){
 			tf = clock() - t;
 			sem_wait(&mutex);
 			to = clock() - t;
@@ -382,6 +382,7 @@ int main(int argc, char* argv[])
         fputs("Unable to open file.\n",stderr);
         exit(EXIT_FAILURE);
     }
+	sem_init(&mutex,0,1);
 	printf("select one of the options bellow:\n 1. Run without multi threading.\n 2. Multi threading using mutex lock.\n 3. Multi threading using semaphore.\n");
 	scanf("%d",&choice);
 	switch(choice){
