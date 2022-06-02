@@ -6,7 +6,9 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <unistd.h>
+#if __linux
 #include <sys/syscall.h>
+#endif
 #include <ctype.h>
 #include <semaphore.h>
 
@@ -141,9 +143,11 @@ void *routine1(void *args){
 	int counter;
 	clock_t t, tf, to;
 	t = clock();
-	
+#if __linux
 	int tid = (int)syscall(SYS_gettid);
-
+#else
+	int tid = (int)pthread_self();
+#endif
 
 	while(text[counter] != '\0'){
 		char *word = malloc(MAX_WORD_SIZE);
@@ -187,7 +191,11 @@ void *routine2(void *args){
 		}
 		if(search(root, word)){
 			tf = clock() - t;
+#if __linux
 			int tid = (int)syscall(SYS_gettid);
+#else
+			int tid = (int)pthread_self();
+#endif
 			acquire();
 			to = clock() - t;
 			fprintf(outFile, "Word: %s. Found in Line: %d. Found by thread: %d. Time elapsed to be found: %ld. Time elapsed to be written in the output file: %ld\n", word, line, tid, tf, to);
@@ -319,14 +327,24 @@ int main(int argc, char* argv[])
 	int choice;
 
     if (argc<2){
-        fputs("Not enough arguments.",stderr);
-        exit(EXIT_FAILURE);
-    }
-    inFile=fopen(argv[1],"rt");
-    if(!inFile){
-        fputs("Unable to open file.\n",stderr);
-        exit(EXIT_FAILURE);
-    }
+        fputs("Not enough arguments.\n",stderr);
+        // exit(EXIT_FAILURE);
+		printf("Enter full address to the text file. (NO SPACES)\n");
+		char filename[256]; 
+		scanf("%s",filename);
+		printf("%s\n", filename);
+		inFile=fopen(filename,"rt");
+		if(!inFile){
+			fputs("Unable to open file.\n",stderr);
+			exit(EXIT_FAILURE);
+		}
+    }else{
+		inFile=fopen(argv[1],"rt");
+		if(!inFile){
+			fputs("Unable to open file.\n",stderr);
+			exit(EXIT_FAILURE);
+		}
+	}
 	if(root==NULL){
 		fputs("memmory allocation failed. (root)\n",stderr);
 		exit(EXIT_FAILURE);
