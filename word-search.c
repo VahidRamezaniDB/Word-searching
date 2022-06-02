@@ -84,9 +84,13 @@ void insert(struct TrieNode *root, const char *key)
 	for (level = 0; level < length; level++)
 	{
 		index = CHAR_TO_INDEX(key[level]);
+		// if(level>0){
+		// 	pCrawl->children[index]=malloc(sizeof(struct TrieNode));
+		// }
 		if (!pCrawl->children[index])
 			pCrawl->children[index] = getNode();
 
+		pCrawl->children[index] = malloc(sizeof(struct TrieNode));
 		pCrawl = pCrawl->children[index];
 	}
 
